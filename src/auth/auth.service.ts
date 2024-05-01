@@ -52,6 +52,7 @@ export class AuthService {
     if (hashedPassword == user.password) {
       const payload = {
         username: user.username,
+        id: user.id,
         email: user.email,
         role: user.role,
       };

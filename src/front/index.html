@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SSE Example</title>
+</head>
+<body>
+  <h1>SSE Example</h1>
+  <button id="subscribeButton">Subscribe</button>
+  <ul id="messages"></ul>
+
+  <script>
+    const messagesList = document.getElementById('messages');
+    const subscribeButton = document.getElementById('subscribeButton');
+
+    let eventSource;
+
+    subscribeButton.addEventListener('click', () => {
+      document.body.appendChild(document.createElement('hr'));
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      // Get the token from wherever you're storing it (e.g., localStorage)
+      const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFsYSIsImlkIjoxMSwiZW1haWwiOiJhbGFAZ21haWwuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3MTQ1NTY3MDksImV4cCI6MTcxNDU2MDMwOX0.Mcog4KbhRZ-_5tixB5HsXKX5Af7Qjkizi6g2_VVdmfo";
+
+      // Add the token to the request headers
+      const headers = new Headers({
+        Authorization: `Bearer ${token}`,
+      });
+
+      eventSource = new EventSource('http://[::1]:3000/sse/cvs', { headers });
+      //message is the event name
+      const message =eventSource.onmessage;
+      console.log(message);
+      //paragraph is the event name
+      const paragraph = eventSource.onparagraph;
+      console.log(paragraph);
+
+      eventSource.onmessage = (event) => {
+        const eventData = JSON.parse(event.data);
+        const listItem = document.createElement('li');
+        listItem.textContent = `Received event: ${JSON.stringify(eventData)}`;
+        messagesList.appendChild(listItem);
+      };
+
+      console.log("SSE connection established");
+    });
+
+    // Optional: Close the SSE connection when the page unloads
+    window.addEventListener('beforeunload', () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    });
+  </script>
+</body>
+</html>
